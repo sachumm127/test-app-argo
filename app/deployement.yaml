@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/myapp:latest"  
+          image: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/myapp:db3491104e5efb6724b1199088ff355a7bad0947"  
           envFrom:
             - configMapRef:
                 name: aws-config  
