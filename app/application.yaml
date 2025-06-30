@@ -9,9 +9,9 @@ spec:
     namespace: app
     server: 'https://kubernetes.default.svc'
   source:
-    repoURL: 'https://github.com/your-org/your-repo.git'
+    repoURL: 'https://github.com/sachumm127/test-app-argo.git'
     targetRevision: HEAD
-    path: 'path/to/k8s/manifests'  
+    path: 'app'  
   project: default
   syncPolicy:
     automated:
