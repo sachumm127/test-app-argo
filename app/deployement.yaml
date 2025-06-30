@@ -5,7 +5,7 @@ metadata:
   labels:
     app: myapp
   annotations:
-    argocd-image-updater.argoproj.io/image-list: "myapp=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/myapp"
+    argocd-image-updater.argoproj.io/image-list: "myapp=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/myapp"
     argocd-image-updater.argoproj.io/update-strategy: "latest"  
 spec:
   replicas: 1
@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/myapp:latest
+          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/myapp:latest  
           ports:
             - containerPort: 8080
