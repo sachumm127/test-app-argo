@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  namespace: default
+  annotations:
+    # ArgoCD Image Updater annotations
+    argocd-image-updater.argoproj.io/image-list: myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    # Update strategy - can be 'latest-tag', 'digest', or 'semver'
+    argocd-image-updater.argoproj.io/myapp.update-strategy: latest-tag
+    # Poll interval for checking new images (default is 2m)
+    argocd-image-updater.argoproj.io/myapp.poll-interval: 30s
+    # Commit message template
+    argocd-image-updater.argoproj.io/git-commit-message: |
+      build: update {{.AppName}} image to {{.NewTag}}
+      
+      Automatically updated by ArgoCD Image Updater
+      Previous: {{.OldTag}}
+      New: {{.NewTag}}
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        # This will be automatically updated by ArgoCD Image Updater
+        image: 343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:build-33
+        ports:
+        - containerPort: 3000
+        env:
+        - name: APP_VERSION
+          value: "1.0.0"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      imagePullSecrets:
+      - name: ecr-secret
