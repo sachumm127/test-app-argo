@@ -1,52 +1,33 @@
-# deployment.yaml - Updated with best practices
+# deployment.yaml - Simple deployment for Minikube
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: myapp
+  namespace: app
   labels:
     app: myapp
-    app.kubernetes.io/name: myapp
-    app.kubernetes.io/instance: myapp
+  annotations:
+    # ArgoCD Image Updater annotations - this is where the magic happens
+    argocd-image-updater.argoproj.io/image-list: "myapp=123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp"
+    argocd-image-updater.argoproj.io/update-strategy: "latest"
+    argocd-image-updater.argoproj.io/myapp.pull-secret: "pullsecret:app/ecr-secret"
 spec:
-  replicas: 1  # Single replica for Minikube
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 1
+  replicas: 1
   selector:
     matchLabels:
       app: myapp
-      app.kubernetes.io/name: myapp
   template:
     metadata:
       labels:
         app: myapp
-        app.kubernetes.io/name: myapp
-        app.kubernetes.io/instance: myapp
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
     spec:
-      serviceAccountName: myapp-sa
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 2000
+      imagePullSecrets:
+        - name: ecr-secret
       containers:
         - name: myapp
           image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/myapp:db3491104e5efb6724b1199088ff355a7bad0947"
-          imagePullPolicy: IfNotPresent
           ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
-          env:
-            - name: APP_PORT
-              value: "8080"
-            - name: APP_ENV
-              value: "production"
+            - containerPort: 8080
           envFrom:
             - configMapRef:
                 name: aws-config
@@ -57,54 +38,19 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-              scheme: HTTP
-            initialDelaySeconds: 30
-            timeoutSeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: http
-              scheme: HTTP
-            initialDelaySeconds: 5
-            timeoutSeconds: 3
-            periodSeconds: 5
-            successThreshold: 1
-            failureThreshold: 3
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1000
-            capabilities:
-              drop:
-                - ALL
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: var-cache
-              mountPath: /var/cache
-      volumes:
-        - name: tmp
-          emptyDir: {}
-        - name: var-cache
-          emptyDir: {}
-      # Optional: Node affinity and tolerations
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                        - myapp
-                topologyKey: kubernetes.io/hostname
+---
+# service.yaml - Simple service
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+  namespace: app
+  labels:
+    app: myapp
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: myapp
