@@ -1,19 +1,21 @@
+# argocd-application.yaml - Simple ArgoCD application
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: myapp
   namespace: argocd
 spec:
-  destination:
-    name: ''
-    namespace: app
-    server: 'https://kubernetes.default.svc'
+  project: default
   source:
     repoURL: 'https://github.com/sachumm127/test-app-argo.git'
     targetRevision: HEAD
-    path: 'app'  
-  project: default
+    path: 'app'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: app
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
