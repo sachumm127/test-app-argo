@@ -8,9 +8,9 @@ metadata:
   annotations:
     # ArgoCD Image Updater annotations
     argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/myapp.allow-tags: regexp:^stg-[0-9a-zA-Z]+$
-    argocd-image-updater.argoproj.io/image-list: "myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:3debb72b998827fec51eb963a0cac4fce2b8b1a1"
-    argocd-image-updater.argoproj.io/update-strategy: "newest-build"
+    argocd-image-updater.argoproj.io/myapp.allow-tags: "regexp:^build-[0-9]+$"  # Allow any build tag like build-25, build-26, etc.
+    argocd-image-updater.argoproj.io/image-list: "myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:build-25"  # Specify the image tag here
+    argocd-image-updater.argoproj.io/update-strategy: "newest-build"  # Will update the image to the newest build
     argocd-image-updater.argoproj.io/myapp.pull-secret: "pullsecret:app/ecr-secret"
 spec:
   replicas: 1
@@ -23,10 +23,10 @@ spec:
         app: myapp
     spec:
       imagePullSecrets:
-        - name: ecr-secret
+        - name: ecr-secret  # Ensure this secret exists and is configured correctly for ECR access
       containers:
         - name: myapp
-          image: "343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:3debb72b998827fec51eb963a0cac4fce2b8b1a1"
+          image: "343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:build-25"  # Ensure the correct tag is used here
           ports:
             - containerPort: 8080
           envFrom:
@@ -39,19 +39,3 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
----
-# service.yaml - Simple service
-apiVersion: v1
-kind: Service
-metadata:
-  name: myapp
-  namespace: app
-  labels:
-    app: myapp
-spec:
-  type: ClusterIP
-  ports:
-    - port: 80
-      targetPort: 8080
-  selector:
-    app: myapp
