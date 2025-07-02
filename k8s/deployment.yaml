@@ -29,7 +29,6 @@ spec:
     spec:
       containers:
       - name: myapp
-        # This will be automatically updated by ArgoCD Image Updater
         image: 343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:build-33
         ports:
         - containerPort: 3000
