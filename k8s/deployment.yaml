@@ -3,20 +3,6 @@ kind: Deployment
 metadata:
   name: myapp
   namespace: default
-  annotations:
-    # ArgoCD Image Updater annotations
-    argocd-image-updater.argoproj.io/image-list: myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/git-branch: main
-    argocd-image-updater.argoproj.io/myapp.update-strategy: latest-tag
-    argocd-image-updater.argoproj.io/myapp.poll-interval: 30s
-    argocd-image-updater.argoproj.io/myapp.allow-tags: ^build-[0-9]+$
-    argocd-image-updater.argoproj.io/git-commit-message: |
-      build: update {{.AppName}} image to {{.NewTag}}
-      
-      Automatically updated by ArgoCD Image Updater
-      Previous: {{.OldTag}}
-      New: {{.NewTag}}
 spec:
   replicas: 2
   selector:
