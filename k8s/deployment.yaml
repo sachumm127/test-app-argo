@@ -5,13 +5,14 @@ metadata:
   namespace: default
   annotations:
     # ArgoCD Image Updater annotations
-    argocd-image-updater.argoproj.io/image-list: myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:${BUILD_NUMBER}
+    argocd-image-updater.argoproj.io/image-list: myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/git-branch: main
-    # Update strategy - can be 'latest-tag', 'digest', or 'semver'
     argocd-image-updater.argoproj.io/myapp.update-strategy: latest-tag
-    # Poll interval for checking new images (default is 2m)
+    # Poll interval for checking new images
     argocd-image-updater.argoproj.io/myapp.poll-interval: 30s
+    # Allow tags pattern (important for build-* tags)
+    argocd-image-updater.argoproj.io/myapp.allow-tags: ^build-[0-9]+$
     # Commit message template
     argocd-image-updater.argoproj.io/git-commit-message: |
       build: update {{.AppName}} image to {{.NewTag}}
