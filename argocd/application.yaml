@@ -3,7 +3,6 @@ kind: Application
 metadata:
   name: myapp
   namespace: argocd
-  # IMPORTANT: This annotation tells ArgoCD to enable image updater for this app
   annotations:
     argocd-image-updater.argoproj.io/image-list: myapp=343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp
     argocd-image-updater.argoproj.io/write-back-method: git
