@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: 343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:build-33
+        image: 343218199136.dkr.ecr.us-east-1.amazonaws.com/myapp:build-35
         ports:
         - containerPort: 3000
         env:
